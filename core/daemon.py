@@ -1,4 +1,4 @@
-from app.state import update_state
+from core.state import update_state
 from time import sleep, monotonic, time
 
 SAMPLING_INTERVAL = 5  # minutes

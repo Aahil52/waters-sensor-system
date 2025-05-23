@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.state import get_state
-from app.daemon import start_daemon
+from core.state import get_state
+from core.daemon import start_daemon
 from pydantic import BaseModel
 from datetime import datetime
 import threading
