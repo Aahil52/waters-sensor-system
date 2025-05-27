@@ -46,6 +46,6 @@ def start_sampler():
         while True:
             loop()
     except Exception as e:
-        print(f"Error in sampler: {e}")
+        print(f"Uncaught exception in sampler: {e}")
     finally:
         cleanup()
