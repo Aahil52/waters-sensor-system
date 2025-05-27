@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from core.state import get_state
-from core.daemon import start_daemon
+from core.sampler import start_sampler
 from pydantic import BaseModel
 from datetime import datetime
 import threading
@@ -23,6 +23,6 @@ async def read() -> SensorData:
 @app.on_event("startup")
 async def startup_event():
     # Start the daemon in a separate thread
-    daemon_thread = threading.Thread(target=start_daemon)
+    daemon_thread = threading.Thread(target=start_sampler)
     daemon_thread.daemon = True
     daemon_thread.start()

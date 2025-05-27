@@ -40,12 +40,12 @@ def cleanup():
     # Cleanup code for sensors and other hardware
     pass
 
-def start_daemon():
+def start_sampler():
     try:
         setup()
         while True:
             loop()
     except Exception as e:
-        print(f"Error in daemon: {e}")
+        print(f"Error in sampler: {e}")
     finally:
         cleanup()
