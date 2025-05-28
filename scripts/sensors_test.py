@@ -24,4 +24,4 @@ while True:
         read_all_sensors()
     except Exception as e:
         print("Error:", e)
-    time.sleep(1)
+    time.sleep(1)  # Adjust sleep time as needed
