@@ -14,10 +14,6 @@ class TemperatureSensor():
             raise RuntimeError("No temperature sensors found on OneWire bus.")
         self.device_file = device_folders[0] + '/w1_slave'
 
-    @property
-    def name(self) -> str:
-        return "temperature"
-
     def _read_raw(self) -> list[str]:
         with open(self.device_file, 'r') as f:
             return f.readlines()

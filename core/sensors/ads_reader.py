@@ -1,12 +1,20 @@
-from CQRobot_ADS1115 import ADS1115, ADS1115_REG_CONFIG_PGA_6_144V
+# core/sensors/ads_reader.py
 
-class ADSReader:
-    def __init__(self, address=0x48, gain=ADS1115_REG_CONFIG_PGA_6_144V):
-        self.adc = ADS1115()
-        self.adc.setAddr_ADS1115(address)
-        self.adc.setGain(gain)
+import board
+import busio
+import adafruit_ads1x15.ads1115 as ADS
+from adafruit_ads1x15.analog_in import AnalogIn
 
-    def read_voltage(self, channel: int) -> float:
-        """Reads the voltage from the given channel in volts"""
-        raw_millivolts = self.adc.readVoltage(channel)['r']
-        return raw_millivolts / 1000.0
+# This class allows sensor classes to import from this module directly
+
+# Shared I2C and ADS1115 instance
+i2c = busio.I2C(board.SCL, board.SDA)
+_ads = ADS.ADS1115(i2c)
+_ads.gain = 1  # 1 = ±4.096V
+
+def get_ads():
+    """Returns shared ADS1115 instance"""
+    return _ads
+
+# Expose ADC symbols for cleaner imports in sensor classes
+__all__ = ["get_ads", "AnalogIn", "ADS"]
