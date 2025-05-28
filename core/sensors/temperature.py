@@ -1,9 +1,10 @@
+# CURRENTLY UNSUPPORTED, CONTINUE ONCE SCREWED IN
+
 import os
 import glob
 import time
-from .base import BaseSensor
 
-class TemperatureSensor(BaseSensor):
+class TemperatureSensor():
     def __init__(self):
         os.system('modprobe w1-gpio')
         os.system('modprobe w1-therm')

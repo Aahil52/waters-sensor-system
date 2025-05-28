@@ -3,9 +3,8 @@ import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
-from .base import BaseSensor
 
-class PHSensor(BaseSensor):
+class PHSensor():
     def __init__(self, channel: int = 0):
         i2c = busio.I2C(board.SCL, board.SDA)
         self.ads = ADS.ADS1115(i2c)
@@ -21,10 +20,6 @@ class PHSensor(BaseSensor):
             self.chan = AnalogIn(self.ads, ADS.P3)
         else:
             raise ValueError("Invalid channel number. Must be 0–3.")
-
-    @property
-    def name(self) -> str:
-        return "pH"
 
     def read(self) -> float:
         """Returns averaged voltage from pH sensor input"""

@@ -1,8 +1,7 @@
 import time
 import RPi.GPIO as GPIO
-from .base import BaseSensor
 
-class TurbiditySensor(BaseSensor):
+class TurbiditySensor():
     def __init__(self, pin: int = None):
         """
         Initialize the turbidity sensor.

@@ -1,16 +1,11 @@
-from .base import BaseSensor
 from .ads_reader import ADSReader
 import time
 
-class TdsSensor(BaseSensor):
+class TdsSensor():
     def __init__(self, channel: int = 1, temp_c: float = 25.0):
         self.ads = ADSReader()
         self.channel = channel
         self.temperature = temp_c
-
-    @property
-    def name(self) -> str:
-        return "tds"
 
     def read(self) -> float:
         # Read 30 samples and use median
