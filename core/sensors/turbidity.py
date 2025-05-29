@@ -2,7 +2,7 @@ import time
 from core.sensors.ads_reader import get_ads, AnalogIn, ADS
 
 class TurbiditySensor:
-    def __init__(self, channel: int = 0):
+    def __init__(self, channel: int = 0, temperature: float = 25.0):
         """Initialize the turbidity sensor on the specified ADS1115 channel (0–3)."""
         try:
             adc_channel = getattr(ADS, f'P{channel}')
