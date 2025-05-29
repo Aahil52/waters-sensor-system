@@ -1,24 +1,29 @@
 import time
-from core.sensors.ph import PHSensor
-from core.sensors.tds import TdsSensor
-from core.sensors.turbidity import TurbiditySensor
+from core.sensors import PHSensor, TdsSensor, TurbiditySensor, TempSensor
 
 def read_all_sensors():
+    # Instantiate and read temperature for analog sensor calibration
+    temp_sensor = TempSensor()
+    temp = temp_sensor.read()
+    
     # Instantiate sensors (choose appropriate ADS1115 channels)
     ph_sensor = PHSensor(channel=0)
-    tds_sensor = TdsSensor(channel=1, temperature=25.0)
+    tds_sensor = TdsSensor(channel=1, temperature=temp[0])
     turb_sensor = TurbiditySensor(channel=2)
 
-    # Read values
+    # Read analog sensor values
     ph = ph_sensor.read()
     tds = tds_sensor.read()
     turbidity = turb_sensor.read()
 
     # Output results
-    print(f"pH: {ph}")
-    print(f"TDS: {tds} ppm")
-    print(f"Turbidity: {turbidity} NTU")
+    print(f"pH: {ph:.2f}")
+    print(f"TDS: {tds:.2f} ppm")
+    print(f"Turbidity: {turbidity:.2f} NTU")
+    print(f"Temperature: {temp[0]:.2f} °C, {temp[1]:.2f} °F")
+    print("-----------------------------")
 
+# Continuously print values
 while True:
     try:
         read_all_sensors()
