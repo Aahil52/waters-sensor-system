@@ -10,7 +10,7 @@ from adafruit_ads1x15.analog_in import AnalogIn
 # Shared I2C and ADS1115 instance
 i2c = busio.I2C(board.SCL, board.SDA)
 _ads = ADS.ADS1115(i2c)
-_ads.gain = 2/3  # 1 = ±6.144V
+_ads.gain = 2/3  # 2/3 = ±6.144V
 
 def get_ads():
     """Returns shared ADS1115 instance"""
