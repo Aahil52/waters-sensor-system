@@ -1,4 +1,4 @@
-# Sensor System Core
+# Sensor System
 
 This program is designed to run as a background process (daemon) on our Raspberry Pi sensor system while it is deployed at the water treatment facility. It consists of an sensor loop and a FastAPI sever that communicate via a shared in-memory state. 
 
@@ -8,7 +8,7 @@ The sensor loop handles low-level sensor interface, samples at a fixed interval,
 
 ### Clone the repo
 ```bash
-$ git clone https://github.com/Aahil52/sensor-system-core.git
+$ git clone https://github.com/Aahil52/sensor-system.git
 ```
 
 ### Create and activate virtual environment
