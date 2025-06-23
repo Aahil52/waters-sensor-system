@@ -6,7 +6,7 @@ After=network-online.target
 [Service]
 User=water
 WorkingDirectory=/opt/sensor-system
-ExecStart=/opt/sensor-system/.venv/bin/python example/example.py
+ExecStart=/opt/sensor-system/.venv/bin/python -u example/example.py
 Restart=always
 RestartSec=3
 
