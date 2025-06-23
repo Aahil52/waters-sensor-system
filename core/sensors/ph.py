@@ -26,6 +26,5 @@ class PHSensor:
         avg_voltage = sum(trimmed) / len(trimmed)
 
         # Linear conversion (calibrate this later with real data i.e. pH 3, pH4, pH 7)
-        """DOUBLE CHECK LOGIC AGAINST DATA SHEET"""
         ph_value = -5.14 * avg_voltage + 20.4
         return ph_value

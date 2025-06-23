@@ -7,9 +7,9 @@ def read_all_sensors():
     temp = temp_sensor.read()
     
     # Instantiate sensors (choose appropriate ADS1115 channels)
-    ph_sensor = PHSensor(channel=0, temperature=temp[0])
-    tds_sensor = TdsSensor(channel=1, temperature=temp[0])
-    turb_sensor = TurbiditySensor(channel=2)
+    ph_sensor = PHSensor(channel=0)
+    turb_sensor = TurbiditySensor(channel=1)
+    tds_sensor = TdsSensor(channel=2)
 
     # Read analog sensor values
     ph = ph_sensor.read()
@@ -20,7 +20,7 @@ def read_all_sensors():
     print(f"pH: {ph:.2f}")
     print(f"TDS: {tds:.2f} ppm")
     print(f"Turbidity: {turbidity:.2f} NTU")
-    print(f"Temperature: {temp[0]:.2f} °C, {temp[1]:.2f} °F")
+    print(f"Temperature: {temp[0]:.2f} °C")
     print("-----------------------------")
 
 # Continuously print values

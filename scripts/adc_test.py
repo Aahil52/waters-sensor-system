@@ -8,7 +8,7 @@ i2c = busio.I2C(board.SCL, board.SDA)
 
 # Create the ADS object and specify the gain
 ads = ADS.ADS1115(i2c)
-ads.gain = 2/3
+ads.gain = 2/3 # 2/3 = ±6.144V
 A0 = AnalogIn(ads, ADS.P0)
 A1 = AnalogIn(ads, ADS.P1)
 A2 = AnalogIn(ads, ADS.P2)
@@ -19,4 +19,4 @@ while True:
     print(f"A1 Voltage: {A1.voltage:.2f} V")
     print(f"A2 Voltage: {A2.voltage:.2f} V")
     print("-----------------------------")
-    time.sleep(1)
+    time.sleep(0.5)
