@@ -1,5 +1,6 @@
 # === Core Web Framework ===
 fastapi[standard]==0.115.12         # Includes all FastAPI dependencies (e.g. uvicorn, httpx, python-multipart, etc.)
+requests>=2.31.0                   # HTTP requests library for API calls
 
 # === Adafruit + GPIO Support ===
 adafruit-blinka>=8.2.6              # Blinka abstraction layer (for Pi GPIO and CircuitPython libs)
