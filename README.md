@@ -3,7 +3,7 @@
 This project is a modular, service-based sensor system designed to run as a background process on a Raspberry Pi deployed at a water treatment facility. The system is structured for real-time data acquisition, modular service expansion, and clean deployment.
 
 It consists of:
-- A **sensor sampling loop** that reads from the hardware at a fixed interval, applies calibration, and writes the current sensor readings to a shared in-memory state.
+- A **sensor sampling loop** that reads from the hardware at a fixed 5 minute interval, applies calibration, and writes the current sensor readings to a shared in-memory state.
 - A **FastAPI server** that exposes the current sensor readings over the local and Tailscale networks.
 - A **calibration workflow** using Jupyter notebook.
 - A **modular service structure** allowing easy addition of new services.
