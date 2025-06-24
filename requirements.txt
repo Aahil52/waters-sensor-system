@@ -10,3 +10,7 @@ smbus2>=0.4.2                       # I2C communication (used with ADS1x15)
 
 # === Sensor System Package ===
 -e .                                # Local editable install of the sensor_system module (i.e. lib, core.sensors, etc.)
+
+# === Jupiter Notebook Support ===
+ipykernel>=6.26.0                   # Make sure to run `python -m ipykernel install --user --name=sensor_system --display-name "Sensor System"` after installing
+nbstripout                          # Strip output from Jupyter notebooks
