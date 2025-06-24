@@ -1,9 +1,9 @@
-from lib.sensor import read
+from lib import sensor
 from time import sleep
 
 while True:
     try:
-        sensor_data = read()
+        sensor_data = sensor.read()
         if sensor_data["sensor_ready"]:
             print(f"[{sensor_data['last_update']}] Turbidity: {sensor_data['turbidity']}, "
                 f"Temperature: {sensor_data['temperature']}, "
