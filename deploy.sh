@@ -1,65 +1,57 @@
 #!/bin/bash
 
+set -e  # Exit on any error
+
 # Configuration
 REPO_URL="https://github.com/Aahil52/sensor-system.git"
 DEST_DIR="/opt/sensor-system"
 VENV_DIR="$DEST_DIR/.venv"
+SERVICE_FILE="sensor-system-sampler.service"
+
+log() {
+    echo "[INFO] $1"
+}
 
 # Detect install vs update
 if [ -d "$DEST_DIR" ]; then
-    echo "Existing installation detected. Updating..."
+    log "Existing installation detected. Updating..."
 
-    # Stop services from deployed directory
-    echo "Stopping services..."
-    for SERVICE_FILE in $DEST_DIR/services/*.service; do
-        SERVICE_NAME=$(basename "$SERVICE_FILE")
-        sudo systemctl stop "$SERVICE_NAME"
-    done
+    log "Stopping service..."
+    sudo systemctl stop "$SERVICE_FILE" || log "Service may not have been running."
 
-    # Pull latest code
-    echo "Pulling latest changes..."
-    cd $DEST_DIR
+    log "Pulling latest changes..."
+    cd "$DEST_DIR"
     sudo git pull
 
-    # Update dependencies
-    echo "Updating Python dependencies..."
-    sudo $VENV_DIR/bin/pip install -r requirements.txt
-
+    log "Updating Python dependencies..."
+    sudo "$VENV_DIR/bin/pip" install -r requirements.txt
 else
-    echo "No installation found. Performing fresh install..."
+    log "No installation found. Performing fresh install..."
 
-    # Clone project
-    sudo git clone $REPO_URL $DEST_DIR
+    log "Cloning repository..."
+    sudo git clone "$REPO_URL" "$DEST_DIR"
 
-    # Create virtual environment
-    echo "Creating virtual environment..."
-    sudo python3 -m venv $VENV_DIR
+    log "Creating virtual environment..."
+    sudo python3 -m venv "$VENV_DIR"
 
-    # Install dependencies
-    echo "Installing Python dependencies..."
-    sudo $VENV_DIR/bin/pip install -r $DEST_DIR/requirements.txt
+    log "Installing Python dependencies..."
+    sudo "$VENV_DIR/bin/pip" install -r "$DEST_DIR/requirements.txt"
 fi
 
-# Copy updated service files every time
-echo "Installing service files..."
-sudo cp $DEST_DIR/services/*.service /etc/systemd/system/
+log "Installing systemd service file..."
+sudo cp "$DEST_DIR/$SERVICE_FILE" /etc/systemd/system/
 
-# Reload systemd
-echo "Reloading systemd..."
+log "Reloading systemd..."
 sudo systemctl daemon-reload
 
-# Enable and start services (always)
-echo "Enabling and restarting services..."
-for SERVICE_FILE in $DEST_DIR/services/*.service; do
-    SERVICE_NAME=$(basename "$SERVICE_FILE")
-    sudo systemctl enable "$SERVICE_NAME"
-    sudo systemctl restart "$SERVICE_NAME"
-done
+log "Enabling and restarting service..."
+sudo systemctl enable "$SERVICE_FILE"
+sudo systemctl restart "$SERVICE_FILE"
 
-# Show final status
-echo "Deployment complete! Service status:"
-for SERVICE_FILE in $DEST_DIR/services/*.service; do
-    SERVICE_NAME=$(basename "$SERVICE_FILE")
-    echo "Status of $SERVICE_NAME:"
-    sudo systemctl status "$SERVICE_NAME" --no-pager
-done
+log "Deployment complete! Showing service status:"
+echo "--------------------------------------------"
+sudo systemctl status "$SERVICE_FILE" --no-pager
+echo "--------------------------------------------"
+
+log "Service deployed and running."
+log "You can check the logs using: journalctl -u $SERVICE_FILE -f"

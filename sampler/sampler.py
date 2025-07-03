@@ -1,4 +1,3 @@
-from core.state import update_state
 from time import sleep, monotonic, time
 
 SAMPLING_INTERVAL = 5  # minutes
@@ -31,8 +30,6 @@ def loop():
         "total_dissolved_solids": 0.0,
         "pH": 0.0
     }
-
-    update_state(sensor_data)
 
     sleep(SAMPLING_INTERVAL * 60)  # Convert minutes to seconds
 
