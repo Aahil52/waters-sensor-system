@@ -12,7 +12,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
 DEVICE_ID = os.getenv("DEVICE_ID")
 
-SAMPLING_INTERVAL = 5 # * 60  # seconds
+SAMPLING_INTERVAL = 15 * 60  # seconds
 
 async def send_sample(session, sample, max_retries=5, base_backoff=2):
     url = f"{SUPABASE_URL}/functions/v1/insert-sample"
