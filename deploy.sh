@@ -29,9 +29,9 @@ else
     log "No installation found. Performing fresh install..."
 
     if [ ! -f ".env" ]; then
-        echo "Missing .env file!"
-        echo "Please create one from the template:"
-        echo "  cp .env.example .env"
+        log "Missing .env file!"
+        log "Please create one from the template:"
+        log "  cp .env.example .env"
         exit 1
     fi
 
