@@ -1,5 +1,5 @@
 import time
-from core.sensors.ads_reader import get_ads, AnalogIn, ADS
+from sampler.sensors.ads_reader import get_ads, AnalogIn, ADS
 
 class TurbiditySensor:
     def __init__(self, channel: int = 0):

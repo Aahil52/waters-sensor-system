@@ -1,5 +1,5 @@
 import time
-from core.sensors import PHSensor, TdsSensor, TurbiditySensor, TempSensor
+from sampler.sensors import PHSensor, TdsSensor, TurbiditySensor, TempSensor
 
 def read_all_sensors():
     # Instantiate and read temperature for analog sensor calibration
@@ -8,8 +8,8 @@ def read_all_sensors():
     
     # Instantiate sensors (choose appropriate ADS1115 channels)
     ph_sensor = PHSensor(channel=0)
-    turb_sensor = TurbiditySensor(channel=1)
-    tds_sensor = TdsSensor(channel=2)
+    tds_sensor = TdsSensor(channel=1)
+    turb_sensor = TurbiditySensor(channel=2)
 
     # Read analog sensor values
     ph = ph_sensor.read()

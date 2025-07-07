@@ -28,6 +28,13 @@ if [ -d "$DEST_DIR" ]; then
 else
     log "No installation found. Performing fresh install..."
 
+    if [ ! -f ".env" ]; then
+        echo "Missing .env file!"
+        echo "Please create one from the template:"
+        echo "  cp .env.example .env"
+        exit 1
+    fi
+
     log "Cloning repository..."
     sudo git clone "$REPO_URL" "$DEST_DIR"
 
@@ -36,6 +43,9 @@ else
 
     log "Installing Python dependencies..."
     sudo "$VENV_DIR/bin/pip" install -r "$DEST_DIR/requirements.txt"
+
+    log "Setting up environment variables..."
+    sudo cp ".env" "$DEST_DIR/.env"
 fi
 
 log "Installing systemd service file..."

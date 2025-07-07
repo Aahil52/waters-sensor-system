@@ -1,6 +1,6 @@
-# core/sensors/__init__.py
+# sampler/sensors/__init__.py
 
-from core.sensors.ph import PHSensor
-from core.sensors.tds import TdsSensor
-from core.sensors.temperature import TempSensor
-from core.sensors.turbidity import TurbiditySensor
+from sampler.sensors.ph import PHSensor
+from sampler.sensors.tds import TdsSensor
+from sampler.sensors.temperature import TempSensor
+from sampler.sensors.turbidity import TurbiditySensor
