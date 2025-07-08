@@ -5,7 +5,7 @@ RPi.GPIO>=0.7.1                     # Raspberry Pi GPIO interface
 smbus2>=0.4.2                       # I2C communication (used with ADS1x15)
 
 # === Supabase Database ===
-aiohttp>=3.9.1                      # Asynchronous HTTP client for Supabase
+requests>=2.31.0                   # HTTP requests for Supabase API
 python-dotenv>=1.0.0                # For loading environment variables from .env files
 
 # === Sensor System Package ===
