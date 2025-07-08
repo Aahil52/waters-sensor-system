@@ -10,7 +10,7 @@ class Sensors:
         This is a placeholder method and should be implemented with actual ADC reading logic.
         """
         # Implement ADC reading logic here
-        return 0
+        return None
 
     def read_turbidity(self):
         """
@@ -18,7 +18,7 @@ class Sensors:
         This is a placeholder method and should be implemented with actual turbidity reading logic.
         """
         # Implement turbidity reading logic here
-        return 0.0
+        return None
 
     def read_temperature(self):
         """
@@ -26,7 +26,7 @@ class Sensors:
         This is a placeholder method and should be implemented with actual temperature reading logic.
         """
         # Implement temperature reading logic here
-        return 0.0
+        return None
 
     def read_total_dissolved_solids(self):
         """
@@ -34,7 +34,7 @@ class Sensors:
         This is a placeholder method and should be implemented with actual TDS reading logic.
         """
         # Implement TDS reading logic here
-        return 0.0
+        return None
         
     def read_ph(self):
         """
@@ -42,10 +42,11 @@ class Sensors:
         This is a placeholder method and should be implemented with actual pH reading logic.
         """
         # Implement pH reading logic here
-        return 0.0
+        return None
 
-    def read_all_sensors(self):
+    def read_all(self):
         """
         Read all sensors and return their values in a tuple.
         """
-        return read_turbidity(), read_temperature(), read_total_dissolved_solids(), read_ph()
+        return self.read_turbidity(), self.read_temperature(), \
+               self.read_total_dissolved_solids(), self.read_ph()

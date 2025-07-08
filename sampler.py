@@ -4,6 +4,7 @@ from time import monotonic, sleep
 from dotenv import load_dotenv
 import os
 import csv
+from sensors import Sensors
 
 load_dotenv()
 
@@ -15,6 +16,8 @@ SAMPLING_INTERVAL = 15  # minutes
 
 start_time = None
 next_sample_time = None
+
+sensors = None
 
 def log_sample(sample):
     path = "data/samples.csv"
@@ -53,20 +56,19 @@ def send_sample(sample, max_retries=5, base_backoff=2):
             sleep(backoff_time)
 
 def setup():
-    global start_time, next_sample_time
+    global start_time, next_sample_time, sensors
     start_time = monotonic()
     next_sample_time = monotonic()
+    sensors = Sensors()
     print("Sampler started.")
-    # Initialize sensors and other hardware here
 
 def loop():
     global next_sample_time
     
     measured_at = datetime.now(timezone.utc).isoformat()
     uptime = monotonic() - start_time
-    
-    # Read sensor data here
-    turbidity, temperature, total_dissolved_solids, ph = None, None, None, None
+
+    turbidity, temperature, total_dissolved_solids, ph = sensors.read_all()
     
     sample = {
         "device_id": DEVICE_ID,
