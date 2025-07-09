@@ -1,24 +1,70 @@
+import numpy as np
 from random import randint
+from time import sleep
+import board
+import busio
+import adafruit_ads1x15.ads1115 as ADS
+import json
 
 class Sensors:
     def __init__(self):
-        pass
+        with open('calibration/coefficients.json', 'r') as f:
+            self.coefficients = json.load(f)
 
-    def read_adc(self, channel):
+        i2c = busio.I2C(board.SCL, board.SDA)
+        self.ads = ADS.ADS1115(i2c)
+        self.ads.gain = 2/3
+
+        self.TURBIDITY_CHANNEL = ADS.P0
+        self.TOTAL_DISSOLVED_SOLIDS_CHANNEL = ADS.P1
+        self.PH_CHANNEL = ADS.P2
+
+    def read_adc_average(self, channel, samples=200, sampling_interval=0.01, attempts=3):
         """
         Read the ADC value from the specified channel.
-        This is a placeholder method and should be implemented with actual ADC reading logic.
+        This method attempts to read the ADC value multiple times, averaging the results
+        if the success rate is above a certain threshold.
+        :param channel: The ADS channel to read from (ADS.P0, ADS.P1, etc.)
+        :param samples: Number of samples to take for averaging
+        :param sampling_interval: Time interval between samples in seconds
+        :param attempts: Number of attempts to read the channel
+        :return: Average ADC value if successful, None if failed after all attempts
         """
-        # Implement ADC reading logic here
+        for _ in range(attempts):
+            sum_samples = 0
+            successful_samples = 0
+            for _ in range(samples):
+                try:
+                    sample = self.ads.read(channel)
+                    sum_samples += sample
+                    successful_samples += 1
+                except Exception as e:
+                    continue
+                sleep(sampling_interval)
+
+            success_rate = successful_samples / samples
+
+            if success_rate > 0.8:
+                print(f"Sufficient success rate ({success_rate:.2f}) for channel {channel}.")
+                return sum_samples / successful_samples
+            else:
+                print(f"Warning: Low success rate ({success_rate:.2f}) for channel {channel}. Retrying...")
+        
+        print(f"Error: Failed to read from channel {channel} after {attempts} attempts. Discarding reading.")
         return None
 
     def read_turbidity(self):
         """
         Read the turbidity sensor value.
-        This is a placeholder method and should be implemented with actual turbidity reading logic.
+        This method reads the ADC value from the turbidity sensor channel and applies
+        the calibration coefficients to convert it to a turbidity value.
+        :return: Calculated turbidity value or None if reading failed
         """
-        # Implement turbidity reading logic here
-        return randint(0, 100)  # Simulating turbidity in NTU (Nephelometric Turbidity Units)
+        value = self.read_adc_average(self.TURBIDITY_CHANNEL)
+        if value is None:
+            return None
+        turbidity_coefficients = self.coefficients['turbidity']['coefficients']
+        return np.polyval(turbidity_coefficients, value)
 
     def read_temperature(self):
         """
@@ -31,22 +77,32 @@ class Sensors:
     def read_total_dissolved_solids(self):
         """
         Read the total dissolved solids sensor value.
-        This is a placeholder method and should be implemented with actual TDS reading logic.
+        This method reads the ADC value from the total dissolved solids sensor channel and applies
+        the calibration coefficients to convert it to a total dissolved solids value.
+        :return: Calculated total dissolved solids value or None if reading failed
         """
-        # Implement TDS reading logic here
-        return randint(0, 1000)
+        value = self.read_adc_average(self.TOTAL_DISSOLVED_SOLIDS_CHANNEL)
+        if value is None:
+            return None
+        total_dissolved_solids_coefficients = self.coefficients['total_dissolved_solids']['coefficients']
+        return np.polyval(total_dissolved_solids_coefficients, value)
         
     def read_ph(self):
         """
         Read the pH sensor value.
-        This is a placeholder method and should be implemented with actual pH reading logic.
+        This method reads the ADC value from the pH sensor channel and applies
+        the calibration coefficients to convert it to a pH value.
+        :return: Calculated pH value or None if reading failed
         """
-        # Implement pH reading logic here
-        return randint(0, 14)
+        value = self.read_adc_average(self.PH_CHANNEL)
+        if value is None:
+            return None
+        ph_coefficients = self.coefficients['ph']['coefficients']
+        return np.polyval(ph_coefficients, value)
 
     def read_all(self):
         """
-        Read all sensors and return their values in a tuple.
+        Read all sensors and return their values in a tuple ordered as:
+        (turbidity, temperature, total dissolved solids, pH)
         """
-        return self.read_turbidity(), self.read_temperature(), \
-               self.read_total_dissolved_solids(), self.read_ph()
+        return self.read_turbidity(), self.read_temperature(), self.read_total_dissolved_solids(), self.read_ph()

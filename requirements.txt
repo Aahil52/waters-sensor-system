@@ -14,5 +14,5 @@ python-dotenv>=1.0.0                # For loading environment variables from .en
 # ipywidgets>=8.0.0                   # Interactive widgets for Jupyter
 
 # === Calibration ===
-# matplotlib>=3.8.0                   # Plotting library for visualizations
-# numpy>=1.26.0                      # Numerical operations (required by matplotlib)
+matplotlib>=3.8.0                   # Plotting library for visualizations
+numpy>=1.26.0                      # Numerical operations (required by matplotlib)

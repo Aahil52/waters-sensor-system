@@ -44,7 +44,7 @@ def send_sample(sample, max_retries=5, base_backoff=2):
         try:
             response = requests.post(url, json=sample, headers=headers, timeout=10)
             response.raise_for_status()
-            print(f"Sample sent at {sample['measured_at']}")
+            print(f"Sample measured at {sample['measured_at']} sent successfully.")
             return
         except Exception as e:
             print(f"Send failed: {e}")
@@ -65,6 +65,8 @@ def setup():
 def loop():
     global next_sample_time
     
+    # measured_at represents when sensor readings began
+    # (actual sensor readings may take a few seconds)
     measured_at = datetime.now(timezone.utc).isoformat()
     uptime = monotonic() - start_time
 
