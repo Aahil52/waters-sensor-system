@@ -8,19 +8,19 @@ This guide shows you how to connect to the deployed Raspberry Pi sensor system u
 
 ### [login.tailscale.com](http://login.tailscale.com)
 
-<img src="assets/screenshot1.png" alt="screenshot1" width="250"/>
+<img src="assets/tailscale/screenshot1.png" alt="screenshot1" width="250"/>
 
 ## Step 2: Follow the Prompts to Install Tailscale and Add Your First Device
 
 Install Tailscale on the device you would like to SSH from.
 
-<img src="assets/screenshot2.png" alt="screenshot2" width="500"/>
+<img src="assets/tailscale/screenshot2.png" alt="screenshot2" width="500"/>
 
 Your device should appear on the screen like this once connected.
 
 ## Step 3: Skip the Rest of the Introduction
 
-<img src="assets/screenshot3.png" alt="screenshot3" width="500"/>
+<img src="assets/tailscale/screenshot3.png" alt="screenshot3" width="500"/>
 
 Tailscale will prompt you to add a second device. Scroll to the bottom of the page and click “Skip this introduction →”.
 
@@ -28,11 +28,11 @@ Tailscale will prompt you to add a second device. Scroll to the bottom of the pa
 
 ### https://login.tailscale.com/admin/invite/Aj5S8qTGjk9Gw7CtGuZQ11
 
-<img src="assets/screenshot4.png" alt="screenshot4" width="250"/>
+<img src="assets/tailscale/screenshot4.png" alt="screenshot4" width="250"/>
 
 Navigate to the invite link and click “Accept invite”.
 
-<img src="assets/screenshot5.png" alt="screenshot5" width="500"/>
+<img src="assets/tailscale/screenshot5.png" alt="screenshot5" width="500"/>
 
 Once you accept the invite, you should now have two machines listed in your Tailnet.
 
