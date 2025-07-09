@@ -36,11 +36,11 @@ load_dotenv()
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_ANON_KEY"))
 
-samples = supabase.table("samples") \
-    .select("*") \
-    .eq("device_id", 1) \
-    .order("measured_at", desc=True) \
-    .execute() \
+samples = supabase.table("samples")
+    .select("*")
+    .eq("device_id", 1)
+    .order("measured_at", desc=True)
+    .execute()
     .data
 ```
 
