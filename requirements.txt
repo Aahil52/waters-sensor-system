@@ -8,11 +8,6 @@ smbus2>=0.4.2                       # I2C communication (used with ADS1x15)
 requests>=2.31.0                   # HTTP requests for Supabase API
 python-dotenv>=1.0.0                # For loading environment variables from .env files
 
-# === Jupiter Notebook Support ===
-# ipykernel>=6.26.0                   # Make sure to run `python -m ipykernel install --user --name=sensor_system --display-name "Sensor System"` after installing
-# nbstripout                          # Strip output from Jupyter notebooks
-# ipywidgets>=8.0.0                   # Interactive widgets for Jupyter
-
 # === Calibration ===
 matplotlib>=3.8.0                   # Plotting library for visualizations
 numpy>=1.26.0                      # Numerical operations (required by matplotlib)

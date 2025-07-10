@@ -4,12 +4,13 @@ from time import sleep
 import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
+import adafruit_ads1x15.analog_in as AnalogIn
 import json
 
 class Sensors:
     def __init__(self):
-        with open('calibration/coefficients.json', 'r') as f:
-            self.coefficients = json.load(f)
+        with open('data/calibration.json', 'r') as f:
+            self.coeffs = json.load(f)
 
         i2c = busio.I2C(board.SCL, board.SDA)
         self.ads = ADS.ADS1115(i2c)
@@ -30,12 +31,14 @@ class Sensors:
         :param attempts: Number of attempts to read the channel
         :return: Average ADC value if successful, None if failed after all attempts
         """
+        analog_input = AnalogIn(self.ads, channel)
+
         for _ in range(attempts):
             sum_samples = 0
             successful_samples = 0
             for _ in range(samples):
                 try:
-                    sample = self.ads.read(channel)
+                    sample = analog_input.voltage
                     sum_samples += sample
                     successful_samples += 1
                 except Exception as e:
@@ -63,8 +66,8 @@ class Sensors:
         value = self.read_adc_average(self.TURBIDITY_CHANNEL)
         if value is None:
             return None
-        turbidity_coefficients = self.coefficients['turbidity']['coefficients']
-        return np.polyval(turbidity_coefficients, value)
+        turbidity_coeffs = self.coeffs['turbidity']['coeffs']
+        return np.polyval(turbidity_coeffs, value)
 
     def read_temperature(self):
         """
@@ -84,8 +87,8 @@ class Sensors:
         value = self.read_adc_average(self.TOTAL_DISSOLVED_SOLIDS_CHANNEL)
         if value is None:
             return None
-        total_dissolved_solids_coefficients = self.coefficients['total_dissolved_solids']['coefficients']
-        return np.polyval(total_dissolved_solids_coefficients, value)
+        total_dissolved_solids_coeffs = self.coeffs['total_dissolved_solids']['coeffs']
+        return np.polyval(total_dissolved_solids_coeffs, value)
         
     def read_ph(self):
         """
@@ -97,8 +100,8 @@ class Sensors:
         value = self.read_adc_average(self.PH_CHANNEL)
         if value is None:
             return None
-        ph_coefficients = self.coefficients['ph']['coefficients']
-        return np.polyval(ph_coefficients, value)
+        ph_coeffs = self.coeffs['ph']['coeffs']
+        return np.polyval(ph_coeffs, value)
 
     def read_all(self):
         """
