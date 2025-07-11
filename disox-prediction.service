@@ -1,0 +1,14 @@
+[Unit]
+Description=Sensor System Sampler Service
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+User=water
+WorkingDirectory=/home/water/sensor-system/predict_DO
+ExecStart=/home/water/sensor-system/predict_DO.venv/bin/python -u predict_DisOx.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
