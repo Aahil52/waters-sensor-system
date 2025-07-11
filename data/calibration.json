@@ -1,0 +1,28 @@
+{
+    "turbidity": {
+        "coeffs": [
+            87623254.12071483,
+            -350634669.9300002,
+            350776375.73870945
+        ],
+        "degree": 2,
+        "log": "data/calibration-logs/turbidity_calibration_2025-07-10_17-10-29.csv"
+    },
+    "total_dissolved_solids": {
+        "coeffs": [
+            292477190.50897497,
+            -1168731468.478373,
+            1167555219.1171956
+        ],
+        "degree": 2,
+        "log": "data/calibration-logs/total_dissolved_solids_calibration_2025-07-10_17-14-09.csv"
+    },
+    "ph": {
+        "coeffs": [
+            -3309.295606341594,
+            6624.898724806415
+        ],
+        "degree": 1,
+        "log": "data/calibration-logs/ph_calibration_2025-07-10_17-14-43.csv"
+    }
+}
