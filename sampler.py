@@ -19,6 +19,9 @@ next_sample_time = None
 
 sensors = None
 
+def predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph):
+    raise NotImplementedError("Dissolved oxygen prediction logic is not implemented yet.")
+
 def log_sample(sample):
     path = "data/samples.csv"
     fieldnames = ['device_id', 'measured_at', 'uptime', 'turbidity', 'temperature', 'total_dissolved_solids', 'ph']
@@ -71,6 +74,8 @@ def loop():
     uptime = monotonic() - start_time
 
     turbidity, temperature, total_dissolved_solids, ph = sensors.read_all()
+
+    predicted_dissolved_oxygen = predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph)
     
     sample = {
         "device_id": DEVICE_ID,
@@ -79,7 +84,8 @@ def loop():
         "turbidity": turbidity,
         "temperature": temperature,
         "total_dissolved_solids": total_dissolved_solids,
-        "ph": ph
+        "ph": ph,
+        "predicted_dissolved_oxygen": predicted_dissolved_oxygen
     }
 
     # Log the sample to a CSV file
