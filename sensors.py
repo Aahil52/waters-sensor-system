@@ -20,40 +20,44 @@ class Sensors:
         self.TOTAL_DISSOLVED_SOLIDS_CHANNEL = ADS.P1
         self.PH_CHANNEL = ADS.P2
 
-    def read_adc_average(self, channel, samples=200, sampling_interval=0.01, attempts=3):
+    def read_adc_average(self, channel, num_samples=200, sampling_interval=0.01, rsd_tolerance=0.01, num_attempts=3):
         """
-        Read the ADC value from the specified channel.
-        This method attempts to read the ADC value multiple times, averaging the results
-        if the success rate is above a certain threshold.
+        Read the ADC channel and return the average voltage with stability checks.
         :param channel: The ADS channel to read from (ADS.P0, ADS.P1, etc.)
-        :param samples: Number of samples to take for averaging
+        :param num_samples: Number of samples to take for averaging
         :param sampling_interval: Time interval between samples in seconds
-        :param attempts: Number of attempts to read the channel
-        :return: Average ADC value if successful, None if failed after all attempts
+        :param rsd_tolerance: Relative standard deviation tolerance for stability
+        :param num_attempts: Number of attempts to read the channel if stability checks fail
+        :return: Average voltage if successful, None if failed after all attempts
         """
         analog_input = AnalogIn(self.ads, channel)
 
-        for _ in range(attempts):
-            sum_samples = 0
-            successful_samples = 0
-            for _ in range(samples):
+        for _ in range(num_attempts):
+            samples = []
+            for _ in range(num_samples):
                 try:
                     sample = analog_input.voltage
-                    sum_samples += sample
-                    successful_samples += 1
+                    samples.append(sample)
                 except Exception as e:
-                    continue
+                    pass
                 sleep(sampling_interval)
 
-            success_rate = successful_samples / samples
-
-            if success_rate > 0.8:
-                print(f"Sufficient success rate ({success_rate:.2f}) for channel {channel}.")
-                return sum_samples / successful_samples
-            else:
+            success_rate = len(samples) / num_samples
+            if success_rate < 0.8:
                 print(f"Warning: Low success rate ({success_rate:.2f}) for channel {channel}. Retrying...")
-        
-        print(f"Error: Failed to read from channel {channel} after {attempts} attempts. Discarding reading.")
+                continue
+
+            mean = np.mean(samples)
+            stdev = np.std(samples, ddof=1)
+            rsd = stdev / mean if abs(mean) > 1e-6 else float('inf')
+
+            if rsd > rsd_tolerance:
+                print(f"Warning: High RSD ({rsd * 100:.2f}%) for channel {channel}. Retrying...")
+                continue
+            
+            print(f"Successfully read channel {channel}. Mean: {mean:.4f} V, RSD: {rsd * 100:.2f}%, Success Rate: {success_rate:.2f}")
+            return mean
+        print(f"Error: Failed to read from channel {channel} after {num_attempts} attempts. Discarding reading.")
         return None
 
     def read_turbidity(self):

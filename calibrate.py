@@ -37,8 +37,8 @@ def ask(prompt, cast=int, default=None, valid=lambda x: True):
         pass
     return default
 
-def sample_until_stable(analog_input, window_size=200, sampling_rate=0.01, stabilization_tolerance=0.003):
-    """Sample the sensor until the standard deviation stabilizes below a threshold."""
+def sample_until_stable(analog_input, window_size=200, sampling_rate=0.01, rsd_tolerance=0.0025):
+    """Collect samples until the relative standard deviation (RSD) is below the tolerance."""
     sub_samples = deque(maxlen=window_size)
 
     while True:
@@ -47,12 +47,13 @@ def sample_until_stable(analog_input, window_size=200, sampling_rate=0.01, stabi
 
         if len(sub_samples) == window_size:
             mean = np.mean(sub_samples)
-            stdev = np.std(sub_samples)
+            stdev = np.std(sub_samples, ddof=1)
+            rsd = stdev / mean if abs(mean) > 1e-6 else float('inf')
 
-            print(f"Mean: {mean:.4f} V | Std Dev: {stdev:.6f} V", end='\r')
+            print(f"Mean: {mean:.4f} V | Std Dev: {stdev:.6f} V, RSD: {rsd * 100:.2f}%", end='\r')
             print(Style.CLEAR, end='')
 
-            if stdev < stabilization_tolerance:
+            if rsd < rsd_tolerance:
                 return mean
         else:
             print(f"Collecting... {len(sub_samples)}/{window_size}", end='\r')
@@ -88,10 +89,7 @@ def collect_samples(analog_input, num_standards, num_samples, sensor):
             input(f"Press enter when ready to collect sample {j + 1}/{num_samples} for {standard} {sensor['unit']}.")
             print(Style.UP + Style.CLEAR, end='')
 
-            sample = sample_until_stable(analog_input, 
-                                         window_size=200, 
-                                         sampling_rate=0.01, 
-                                         stabilization_tolerance=0.03)
+            sample = sample_until_stable(analog_input)
             samples[standard].append(sample)
 
             print(Style.CLEAR + Style.UP + Style.CLEAR + Style.UP + Style.CLEAR, end='')
@@ -151,7 +149,7 @@ def log_samples(samples, sensor):
 
     with open(filename, mode='w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([sensor['unit'], "voltage"])
+        writer.writerow([f"{sensor['name']} ({sensor['unit']})", "Voltage (V)"])
 
         for standard, voltages in samples.items():
             for v in voltages:
@@ -257,3 +255,6 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print("\n\nProgram interrupted. Exiting...")
+    except Exception as e:
+        print(f"\n\nAn error occurred: {e}")
+        print("Exiting...")
