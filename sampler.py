@@ -24,7 +24,7 @@ def predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph)
 
 def log_sample(sample):
     path = "data/samples.csv"
-    fieldnames = ['device_id', 'measured_at', 'uptime', 'turbidity', 'temperature', 'total_dissolved_solids', 'ph']
+    fieldnames = ['device_id', 'measured_at', 'uptime', 'turbidity', 'temperature', 'total_dissolved_solids', 'ph', 'predicted_dissolved_oxygen']
     file_exists = os.path.isfile(path)
 
     with open(path, mode='a', newline='') as file:
