@@ -62,6 +62,26 @@ def predict_do() -> float:
     predicted_do = model.predict(X)[0]
     return float(predicted_do)
 
+def predict_do_from_sample(sample: dict) -> float:
+    """
+    Given a sample dict with the correct fields, predict DO using the trained model.
+    """
+    # Preprocess the input
+    X = preprocess_sensor_data(sample)
+
+    # Load the model
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(script_dir, "GradientBoosting_withTDS_model.joblib")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model not found at path: {model_path}")
+
+    model = joblib.load(model_path)
+
+    # Predict DO
+    predicted_do = model.predict(X)[0]
+    return float(predicted_do)
+
+
 if __name__ == "__main__":
     try:
         result = predict_do()
