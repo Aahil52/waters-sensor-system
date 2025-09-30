@@ -4,8 +4,10 @@ from time import sleep
 import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
-import adafruit_ads1x15.analog_in as AnalogIn
+from adafruit_ads1x15.analog_in import AnalogIn
 import json
+import os
+import glob
 
 class Sensors:
     def __init__(self):
@@ -16,9 +18,18 @@ class Sensors:
         self.ads = ADS.ADS1115(i2c)
         self.ads.gain = 2/3
 
-        self.TURBIDITY_CHANNEL = ADS.P0
-        self.TOTAL_DISSOLVED_SOLIDS_CHANNEL = ADS.P1
-        self.PH_CHANNEL = ADS.P2
+        self.TURBIDITY_CHANNEL = ADS.P1
+        self.TOTAL_DISSOLVED_SOLIDS_CHANNEL = ADS.P2
+        self.PH_CHANNEL = ADS.P0
+
+        # Mount the temperature probe
+        os.system('modprobe w1-gpio')
+        os.system('modprobe w1-therm')
+
+        base_dir = '/sys/bus/w1/devices/'
+        # Get all the filenames begin with 28 in the path base_dir.
+        device_folder = glob.glob(base_dir + '28*')[0]
+        self.device_file = device_folder + '/w1_slave'
 
     def read_adc_average(self, channel, num_samples=200, sampling_interval=0.01, rsd_tolerance=0.01, num_attempts=3):
         """
@@ -54,10 +65,22 @@ class Sensors:
             if rsd > rsd_tolerance:
                 print(f"Warning: High RSD ({rsd * 100:.2f}%) for channel {channel}. Retrying...")
                 continue
-            
+
             print(f"Successfully read channel {channel}. Mean: {mean:.4f} V, RSD: {rsd * 100:.2f}%, Success Rate: {success_rate:.2f}")
             return mean
         print(f"Error: Failed to read from channel {channel} after {num_attempts} attempts. Discarding reading.")
+        return None
+
+    def read_temperature_raw(self, num_attempts=3):
+        for _ in range(num_attempts):
+            with open(self.device_file, 'r') as f:
+                lines = f.readlines()
+            if lines[0].strip()[-3:] == 'YES':
+                print("Successfully read temperature sensor.")
+                return lines
+            print("Warning: Temperature read failed, retrying...")
+            sleep(0.2)
+        print(f"Error: Temperature read failed after {num_attempts} attempts. Discarding reading.")
         return None
 
     def read_turbidity(self):
@@ -76,10 +99,21 @@ class Sensors:
     def read_temperature(self):
         """
         Read the temperature sensor value.
-        This is a placeholder method and should be implemented with actual temperature reading logic.
+        This method reads the temperature from the 1-Wire temperature sensor.
+        :return: Temperature in Celsius or None if reading failed
         """
-        # Implement temperature reading logic here
-        return randint(-20, 50)  # Simulating temperature in Celsius
+        lines = self.read_temperature_raw()
+
+        if lines is None:
+            return None
+
+        # Find the index of 't=' in a string.
+        equals_pos = lines[1].find('t=')
+        if equals_pos != -1:
+            # Read the temperature .
+            temp_string = lines[1][equals_pos+2:]
+            temp_c = float(temp_string) / 1000.0
+            return temp_c
 
     def read_total_dissolved_solids(self):
         """
@@ -93,7 +127,7 @@ class Sensors:
             return None
         total_dissolved_solids_coeffs = self.coeffs['total_dissolved_solids']['coeffs']
         return np.polyval(total_dissolved_solids_coeffs, value)
-        
+
     def read_ph(self):
         """
         Read the pH sensor value.

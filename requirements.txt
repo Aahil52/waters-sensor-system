@@ -11,3 +11,5 @@ python-dotenv>=1.0.0                # For loading environment variables from .en
 # === Calibration ===
 matplotlib>=3.8.0                   # Plotting library for visualizations
 numpy>=1.26.0                      # Numerical operations (required by matplotlib)
+pandas>=2.2.0                     # Data manipulation and analysis
+jupyter>=1.0.0                    # Interactive computing environment

@@ -104,9 +104,9 @@ def samples_to_arrays(samples):
     """Format samples for plotting or further processing."""
     x = []
     y = []
-    for standard, voltages in samples.items():
-        for v in voltages:
-            x.append(v)
+    for standard, counts in samples.items():
+        for c in counts:
+            x.append(c)
             y.append(standard)
     return np.array(x), np.array(y)
 
@@ -137,7 +137,7 @@ def plot_fit(x, y, coeffs, sensor):
     plt.scatter(x, y, marker="star", color="red")
 
     plt.title(f"{sensor['name']} Calibration Curve")
-    plt.xlabel("Voltage (V)")
+    plt.xlabel("ADC Counts")
     plt.ylabel(f"{sensor['name']} ({sensor['unit']})")
     plt.plot_size(100, 20)
     plt.show()
@@ -161,7 +161,7 @@ def log_samples(samples, sensor):
 
 def apply_calibration(coeffs, degree, log, sensor):
     sensor_name = sensor['name'].lower().replace(' ', '_')
-        
+
     calibration = {}
 
     try:
@@ -177,7 +177,7 @@ def apply_calibration(coeffs, degree, log, sensor):
             "log": log
         }
         json.dump(calibration, f, indent=4)
-        
+
 
     print(f"Calibration coefficients for {sensor['name']} saved to calibration.json.")
 
@@ -214,7 +214,7 @@ def main():
     samples = collect_samples(analog_input, num_standards, num_samples, sensor)
 
     degree = ask("Enter the degree of polynomial for fitting (default 1): ", int, 1, lambda x: x >= 0)
-    
+
     x, y = samples_to_arrays(samples)
 
     try:
@@ -236,7 +236,7 @@ def main():
     option = ask("Would you like to apply the calibration and log the samples, only log the samples, or exit? (a/l/e, default 'a'): ",
                  cast=str, default='a', valid=lambda x: x in ['a', 'l', 'e'])
     print(Style.SEPARATOR)
-    
+
     log = ""
 
     # Log the samples to a csv

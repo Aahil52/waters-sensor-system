@@ -29,20 +29,20 @@ def log_sample(sample):
 
     with open(path, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
-        
+
         if not file_exists:
             writer.writeheader()
-        
+
         writer.writerow(sample)
 
 def send_sample(sample, max_retries=5, base_backoff=2):
     url = f"{SUPABASE_URL}/functions/v1/insert-sample"
-    
+
     headers = {
         "Authorization": f"Bearer {SUPABASE_ANON_KEY}",
         "Content-Type": "application/json"
     }
-    
+
     for attempt in range(max_retries):
         try:
             response = requests.post(url, json=sample, headers=headers, timeout=10)
@@ -67,7 +67,7 @@ def setup():
 
 def loop():
     global next_sample_time
-    
+
     # measured_at represents when sensor readings began
     # (actual sensor readings may take a few seconds)
     measured_at = datetime.now(timezone.utc).isoformat()
@@ -75,8 +75,8 @@ def loop():
 
     turbidity, temperature, total_dissolved_solids, ph = sensors.read_all()
 
-    predicted_dissolved_oxygen = predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph)
-    
+    # predicted_dissolved_oxygen = predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph)
+
     sample = {
         "device_id": DEVICE_ID,
         "measured_at": measured_at,
@@ -85,15 +85,15 @@ def loop():
         "temperature": temperature,
         "total_dissolved_solids": total_dissolved_solids,
         "ph": ph,
-        "predicted_dissolved_oxygen": predicted_dissolved_oxygen
+        "predicted_dissolved_oxygen": None  # predicted_dissolved_oxygen
     }
 
     # Log the sample to a CSV file
     log_sample(sample)
-    
+
     # Send the sample to Supabase with retries
     send_sample(sample)
-    
+
     # Wait until the next precise interval
     next_sample_time += SAMPLING_INTERVAL * 60  # Convert minutes to seconds
     sleep_time = max(0, next_sample_time - monotonic())

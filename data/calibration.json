@@ -1,26 +1,27 @@
 {
     "turbidity": {
         "coeffs": [
-            264141.9850287331,
-            -488270.1350547368
+            15899.480082609623,
+            -152330.9585792069,
+            364859.8501950158
         ],
-        "degree": 1,
-        "log": "data/calibration-logs/turbidity_calibration_2025-07-10_22-37-57.csv"
+        "degree": 2,
+        "log": "data/calibration-logs/turbidity_calibration_2025-09-18_12-24-36.csv"
     },
     "total_dissolved_solids": {
         "coeffs": [
-            1152073.7327187203,
-            -2131675.6192393107
+            300.5452649735015,
+            36.55937482982423
         ],
         "degree": 1,
-        "log": "data/calibration-logs/total_dissolved_solids_calibration_2025-07-10_22-38-51.csv"
+        "log": "data/calibration-logs/total_dissolved_solids_calibration_2025-09-18_15-13-46.csv"
     },
     "ph": {
         "coeffs": [
-            7191.100025867032,
-            -13306.676746109239
+            -5.871697311907303,
+            21.832017993510558
         ],
         "degree": 1,
-        "log": "data/calibration-logs/ph_calibration_2025-07-10_22-39-17.csv"
+        "log": "data/calibration-logs/ph_calibration_2025-09-11_15-38-00.csv"
     }
 }
