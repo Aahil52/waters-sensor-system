@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 import os
 import csv
 from sensors import Sensors
+from predict_DO.predict_DisOx import predict_do_from_sample
+
+
 
 load_dotenv()
 
@@ -19,7 +22,20 @@ next_sample_time = None
 
 sensors = None
 
-def predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph):
+def predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph, measured_at):
+    try:
+        sample = {
+            "measured_at": measured_at,
+            "temperature": temperature,
+            "ph": ph,
+            "turbidity": turbidity,
+            "total_dissolved_solids": total_dissolved_solids
+        }
+        return predict_do_from_sample(sample)
+    except Exception as e:
+        print(f"[WARNING] DO prediction failed: {e}")
+        return None
+
     raise NotImplementedError("Dissolved oxygen prediction logic is not implemented yet.")
 
 def log_sample(sample):
@@ -75,7 +91,10 @@ def loop():
 
     turbidity, temperature, total_dissolved_solids, ph = sensors.read_all()
 
-    # predicted_dissolved_oxygen = predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph)
+    predicted_dissolved_oxygen = predict_dissolved_oxygen(
+        turbidity, temperature, total_dissolved_solids, ph, measured_at
+    )
+
 
     sample = {
         "device_id": DEVICE_ID,
