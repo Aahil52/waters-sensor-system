@@ -39,37 +39,68 @@ class Sensors:
         :param sampling_interval: Time interval between samples in seconds
         :param rsd_tolerance: Relative standard deviation tolerance for stability
         :param num_attempts: Number of attempts to read the channel if stability checks fail
-        :return: Average voltage if successful, None if failed after all attempts
+        :return: Dict with voltage, rsd, success_rate, attempts, and success flag
         """
         analog_input = AnalogIn(self.ads, channel)
+        last_attempt_data = None
 
-        for _ in range(num_attempts):
+        for attempt in range(num_attempts):
+            # Collect samples
             samples = []
             for _ in range(num_samples):
                 try:
-                    sample = analog_input.voltage
-                    samples.append(sample)
-                except Exception as e:
-                    pass
+                    samples.append(analog_input.voltage)
+                except Exception:
+                    pass  # Silently skip failed readings
                 sleep(sampling_interval)
 
+            # Calculate metrics for this attempt
             success_rate = len(samples) / num_samples
+            mean = np.mean(samples) if samples else 0.0
+            rsd = self._calculate_rsd(samples, mean) if len(samples) > 1 else float('inf')
+
+            attempt_data = {
+                'voltage': mean if samples else None,
+                'rsd': rsd,
+                'success_rate': success_rate,
+                'attempts': attempt + 1,
+                'success': False
+            }
+
+            # Check if this attempt meets quality criteria
+            if success_rate >= 0.8 and rsd <= rsd_tolerance:
+                attempt_data['success'] = True
+                print(f"Successfully read channel {channel}. Mean: {mean:.4f} V, RSD: {rsd * 100:.2f}%, Success Rate: {success_rate:.2f}")
+                return attempt_data
+
+            # Store failed attempt data
+            last_attempt_data = attempt_data
             if success_rate < 0.8:
                 print(f"Warning: Low success rate ({success_rate:.2f}) for channel {channel}. Retrying...")
-                continue
-
-            mean = np.mean(samples)
-            stdev = np.std(samples, ddof=1)
-            rsd = stdev / mean if abs(mean) > 1e-6 else float('inf')
-
-            if rsd > rsd_tolerance:
+            else:
                 print(f"Warning: High RSD ({rsd * 100:.2f}%) for channel {channel}. Retrying...")
-                continue
 
-            print(f"Successfully read channel {channel}. Mean: {mean:.4f} V, RSD: {rsd * 100:.2f}%, Success Rate: {success_rate:.2f}")
-            return mean
-        print(f"Error: Failed to read from channel {channel} after {num_attempts} attempts. Discarding reading.")
-        return None
+        # All attempts failed - return the last attempt's data
+        print(f"Error: Failed to read from channel {channel} after {num_attempts} attempts.")
+        if last_attempt_data:
+            last_attempt_data['attempts'] = num_attempts
+            return last_attempt_data
+
+        # Fallback if no samples were ever collected
+        return {
+            'voltage': None,
+            'rsd': None,
+            'success_rate': 0.0,
+            'attempts': num_attempts,
+            'success': False
+        }
+
+    def _calculate_rsd(self, samples, mean):
+        """Calculate relative standard deviation, handling edge cases."""
+        if len(samples) <= 1 or abs(mean) < 1e-6:
+            return float('inf')
+        stdev = np.std(samples, ddof=1)
+        return stdev / mean
 
     def read_temperature_raw(self, num_attempts=3):
         for _ in range(num_attempts):
@@ -88,13 +119,14 @@ class Sensors:
         Read the turbidity sensor value.
         This method reads the ADC value from the turbidity sensor channel and applies
         the calibration coefficients to convert it to a turbidity value.
-        :return: Calculated turbidity value or None if reading failed
+        :return: Tuple of (turbidity_value, diagnostic_data) or (None, diagnostic_data)
         """
-        value = self.read_adc_average(self.TURBIDITY_CHANNEL)
-        if value is None:
-            return None
+        adc_data = self.read_adc_average(self.TURBIDITY_CHANNEL)
+        if adc_data['voltage'] is None or not adc_data['success']:
+            return None, adc_data
         turbidity_coeffs = self.coeffs['turbidity']['coeffs']
-        return np.polyval(turbidity_coeffs, value)
+        turbidity_value = np.polyval(turbidity_coeffs, adc_data['voltage'])
+        return turbidity_value, adc_data
 
     def read_temperature(self):
         """
@@ -120,30 +152,54 @@ class Sensors:
         Read the total dissolved solids sensor value.
         This method reads the ADC value from the total dissolved solids sensor channel and applies
         the calibration coefficients to convert it to a total dissolved solids value.
-        :return: Calculated total dissolved solids value or None if reading failed
+        :return: Tuple of (total_dissolved_solids_value, diagnostic_data) or (None, diagnostic_data)
         """
-        value = self.read_adc_average(self.TOTAL_DISSOLVED_SOLIDS_CHANNEL)
-        if value is None:
-            return None
+        adc_data = self.read_adc_average(self.TOTAL_DISSOLVED_SOLIDS_CHANNEL)
+        if adc_data['voltage'] is None or not adc_data['success']:
+            return None, adc_data
         total_dissolved_solids_coeffs = self.coeffs['total_dissolved_solids']['coeffs']
-        return np.polyval(total_dissolved_solids_coeffs, value)
+        total_dissolved_solids_value = np.polyval(total_dissolved_solids_coeffs, adc_data['voltage'])
+        return total_dissolved_solids_value, adc_data
 
     def read_ph(self):
         """
         Read the pH sensor value.
         This method reads the ADC value from the pH sensor channel and applies
         the calibration coefficients to convert it to a pH value.
-        :return: Calculated pH value or None if reading failed
+        :return: Tuple of (ph_value, diagnostic_data) or (None, diagnostic_data)
         """
-        value = self.read_adc_average(self.PH_CHANNEL)
-        if value is None:
-            return None
+        adc_data = self.read_adc_average(self.PH_CHANNEL)
+        if adc_data['voltage'] is None or not adc_data['success']:
+            return None, adc_data
         ph_coeffs = self.coeffs['ph']['coeffs']
-        return np.polyval(ph_coeffs, value)
+        ph_value = np.polyval(ph_coeffs, adc_data['voltage'])
+        return ph_value, adc_data
 
     def read_all(self):
         """
-        Read all sensors and return their values in a tuple ordered as:
-        (turbidity, temperature, total dissolved solids, pH)
+        Read all sensors and return their values and diagnostic data.
+        :return: Dict with sensor values and diagnostic data
         """
-        return self.read_turbidity(), self.read_temperature(), self.read_total_dissolved_solids(), self.read_ph()
+        turbidity, turbidity_diag = self.read_turbidity()
+        temperature = self.read_temperature()
+        total_dissolved_solids, total_dissolved_solids_diag = self.read_total_dissolved_solids()
+        ph, ph_diag = self.read_ph()
+
+        return {
+            'turbidity': turbidity,
+            'temperature': temperature,
+            'total_dissolved_solids': total_dissolved_solids,
+            'ph': ph,
+            'turbidity_voltage': turbidity_diag['voltage'],
+            'turbidity_rsd': turbidity_diag['rsd'],
+            'turbidity_success_rate': turbidity_diag['success_rate'],
+            'turbidity_attempts': turbidity_diag['attempts'],
+            'total_dissolved_solids_voltage': total_dissolved_solids_diag['voltage'],
+            'total_dissolved_solids_rsd': total_dissolved_solids_diag['rsd'],
+            'total_dissolved_solids_success_rate': total_dissolved_solids_diag['success_rate'],
+            'total_dissolved_solids_attempts': total_dissolved_solids_diag['attempts'],
+            'ph_voltage': ph_diag['voltage'],
+            'ph_rsd': ph_diag['rsd'],
+            'ph_success_rate': ph_diag['success_rate'],
+            'ph_attempts': ph_diag['attempts']
+        }

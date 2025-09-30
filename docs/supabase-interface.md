@@ -80,6 +80,8 @@ Write access (e.g., sensor sample inserts) should be routed through a Supabase E
 
 This edge function is hosted in Supabase and uses the Service Role Key to bypass the read-only RLS policy. It uses UPSERT to ignore duplicate samples. A sample can be sent using the `/functions/v1/insert-sample` endpoint as implemented in the `send_sample()` function in [`sampler.py`](../sampler.py).
 
+The function accepts sensor measurements along with diagnostic data for research quality assurance, including predicted dissolved oxygen from machine learning models.
+
 ```ts
 import { createClient } from 'npm:@supabase/supabase-js@2';
 const supabase = createClient(Deno.env.get('SUPABASE_URL'), Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
@@ -90,8 +92,33 @@ Deno.serve(async (req)=>{
     });
   }
   try {
-    // Extract JSON payload
-    const { device_id, measured_at, uptime, turbidity, temperature, total_dissolved_solids, ph } = await req.json();
+    // Extract JSON payload with diagnostic data
+    const { 
+      device_id, 
+      measured_at, 
+      uptime, 
+      turbidity, 
+      temperature, 
+      total_dissolved_solids, 
+      ph,
+      predicted_dissolved_oxygen,
+      // Turbidity diagnostics
+      turbidity_voltage,
+      turbidity_rsd,
+      turbidity_success_rate,
+      turbidity_attempts,
+      // Total dissolved solids diagnostics
+      total_dissolved_solids_voltage,
+      total_dissolved_solids_rsd,
+      total_dissolved_solids_success_rate,
+      total_dissolved_solids_attempts,
+      // pH diagnostics
+      ph_voltage,
+      ph_rsd,
+      ph_success_rate,
+      ph_attempts
+    } = await req.json();
+    
     if (!device_id || !measured_at || !uptime) {
       return new Response(JSON.stringify({
         error: 'Missing required fields'
@@ -99,7 +126,8 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
-    // Insert new sample, ignoring duplicates
+    
+    // Insert new sample with diagnostic data, ignoring duplicates
     const { error: insertError } = await supabase.from('samples').upsert({
       device_id,
       measured_at,
@@ -107,11 +135,25 @@ Deno.serve(async (req)=>{
       turbidity,
       temperature,
       total_dissolved_solids,
-      ph
+      ph,
+      predicted_dissolved_oxygen,
+      turbidity_voltage,
+      turbidity_rsd,
+      turbidity_success_rate,
+      turbidity_attempts,
+      total_dissolved_solids_voltage,
+      total_dissolved_solids_rsd,
+      total_dissolved_solids_success_rate,
+      total_dissolved_solids_attempts,
+      ph_voltage,
+      ph_rsd,
+      ph_success_rate,
+      ph_attempts
     }, {
       onConflict: 'device_id,measured_at',
       ignoreDuplicates: true
     });
+    
     if (insertError) {
       return new Response(JSON.stringify({
         error: insertError.message
@@ -119,6 +161,7 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
+    
     return new Response(JSON.stringify({
       success: true
     }), {

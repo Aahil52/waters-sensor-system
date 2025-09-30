@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 import csv
 from sensors import Sensors
-from predict_DO.predict_DisOx import predict_do_from_sample
+# from predict_DO.predict_DisOx import predict_do_from_sample
 
 
 
@@ -22,6 +22,7 @@ next_sample_time = None
 
 sensors = None
 
+"""
 def predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph, measured_at):
     try:
         sample = {
@@ -35,10 +36,16 @@ def predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph,
     except Exception as e:
         print(f"[WARNING] DO prediction failed: {e}")
         return None
+"""
 
 def log_sample(sample):
     path = "data/samples.csv"
-    fieldnames = ['device_id', 'measured_at', 'uptime', 'turbidity', 'temperature', 'total_dissolved_solids', 'ph', 'predicted_dissolved_oxygen']
+    fieldnames = [
+        'device_id', 'measured_at', 'uptime', 'turbidity', 'temperature', 'total_dissolved_solids', 'ph', 'predicted_dissolved_oxygen',
+        'turbidity_voltage', 'turbidity_rsd', 'turbidity_success_rate', 'turbidity_attempts',
+        'total_dissolved_solids_voltage', 'total_dissolved_solids_rsd', 'total_dissolved_solids_success_rate', 'total_dissolved_solids_attempts',
+        'ph_voltage', 'ph_rsd', 'ph_success_rate', 'ph_attempts'
+    ]
     file_exists = os.path.isfile(path)
 
     with open(path, mode='a', newline='') as file:
@@ -87,22 +94,21 @@ def loop():
     measured_at = datetime.now(timezone.utc).isoformat()
     uptime = monotonic() - start_time
 
-    turbidity, temperature, total_dissolved_solids, ph = sensors.read_all()
+    sensor_data = sensors.read_all()
 
+    """
     predicted_dissolved_oxygen = predict_dissolved_oxygen(
-        turbidity, temperature, total_dissolved_solids, ph, measured_at
+        sensor_data['turbidity'], sensor_data['temperature'],
+        sensor_data['total_dissolved_solids'], sensor_data['ph'], measured_at
     )
-
+    """
 
     sample = {
         "device_id": DEVICE_ID,
         "measured_at": measured_at,
         "uptime": uptime,
-        "turbidity": turbidity,
-        "temperature": temperature,
-        "total_dissolved_solids": total_dissolved_solids,
-        "ph": ph,
-        "predicted_dissolved_oxygen": predicted_dissolved_oxygen
+        "predicted_dissolved_oxygen": None,  # predicted_dissolved_oxygen,
+        **sensor_data
     }
 
     # Log the sample to a CSV file
