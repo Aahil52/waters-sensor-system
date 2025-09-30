@@ -36,8 +36,6 @@ def predict_dissolved_oxygen(turbidity, temperature, total_dissolved_solids, ph,
         print(f"[WARNING] DO prediction failed: {e}")
         return None
 
-    raise NotImplementedError("Dissolved oxygen prediction logic is not implemented yet.")
-
 def log_sample(sample):
     path = "data/samples.csv"
     fieldnames = ['device_id', 'measured_at', 'uptime', 'turbidity', 'temperature', 'total_dissolved_solids', 'ph', 'predicted_dissolved_oxygen']
@@ -104,7 +102,7 @@ def loop():
         "temperature": temperature,
         "total_dissolved_solids": total_dissolved_solids,
         "ph": ph,
-        "predicted_dissolved_oxygen": None  # predicted_dissolved_oxygen
+        "predicted_dissolved_oxygen": predicted_dissolved_oxygen
     }
 
     # Log the sample to a CSV file
